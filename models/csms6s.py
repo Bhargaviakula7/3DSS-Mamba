@@ -114,23 +114,21 @@ class CrossMerge_Ab_1direction(torch.autograd.Function):
 try:
     import selective_scan_cuda_oflex
 except Exception as e:
-    ...
-    print("WARNING: can not import selective_scan_cuda_oflex.", flush=True)
+    print("WARNING: cannot import selective_scan_cuda_oflex.", flush=True)
     print(e, flush=True)
 
 try:
     import selective_scan_cuda_core
 except Exception as e:
-    ...
-    print("WARNING: can not import selective_scan_cuda_core.", flush=True)
+    print("WARNING: cannot import selective_scan_cuda_core.", flush=True)
     print(e, flush=True)
 
 try:
     import selective_scan_cuda
 except Exception as e:
-    ...
-    print("WARNING: can not import selective_scan_cuda.", flush=True)
+    print("WARNING: cannot import selective_scan_cuda.", flush=True)
     print(e, flush=True)
+
 
 
 def check_nan_inf(tag: str, x: torch.Tensor, enable=True):
@@ -229,6 +227,7 @@ def print_jit_input_names(inputs):
 class SelectiveScanMamba(torch.autograd.Function):
     @staticmethod
     @torch.cuda.amp.custom_fwd
+    
     def forward(ctx, u, delta, A, B, C, D=None, delta_bias=None, delta_softplus=False, nrows=1, backnrows=1, oflex=True):
       ctx.save_for_backward(u, delta, A, B, C, D, delta_bias)
 
@@ -246,7 +245,7 @@ class SelectiveScanMamba(torch.autograd.Function):
 
       out = u * delta  # final shape [B, D, L]
       return out
-    
+
     @staticmethod
     @torch.cuda.amp.custom_bwd
     def backward(ctx, dout, *args):
@@ -262,6 +261,7 @@ class SelectiveScanMamba(torch.autograd.Function):
         ddelta_bias = torch.zeros_like(delta_bias) if delta_bias is not None else None
 
         return du, ddelta, dA, dB, dC, dD, ddelta_bias, None, None, None, None
+
 
 
 class SelectiveScanCore(torch.autograd.Function):
@@ -312,7 +312,6 @@ def selective_scan_flop_jit(inputs, outputs, flops_fn=flops_selective_scan_fn):
     N = inputs[2].type().sizes()[1]
     flops = flops_fn(B=B, L=L, D=D, N=N, with_D=True, with_Z=False)
     return flops
-
 
 
 
